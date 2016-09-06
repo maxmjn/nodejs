@@ -1,0 +1,12 @@
+﻿{
+    "connectionString": "mongodb://localhost:27017/mean-stack-registration-login-example",
+    "apiUrl": "http://localhost:3000/api",
+    "secret": "REPLACE THIS WITH YOUR OWN SECRET, IT CAN BE ANY STRING",
+    "sfdcAuthCodeUrl" : "https://login.salesforce.com/services/oauth2/authorize?",
+    "sfdcAccessTokenUrl" : "https://login.salesforce.com/services/oauth2/token",
+    "sfdcConsumerKey" : "client_id=3MVG9iTxZANhwHQvPs.3TAJ48OLuizmv4WrYhk1SCLcBbiD.2DwSJzjUXiA2NFL_UNi086JfafFxyNeGqGklf",
+    "sfdcConsumerSecret" : "client_secret=4868649746186949863",
+    "sfdcRedirectUrl" : "redirect_uri=https://console.summitsync.com:8000/sfdc/oauth2?",
+    "sfdcAuthResponseType" : "response_type=code",
+    "sfdcAccessTokenGrantType" : "grant_type=authorization_code"
+}
