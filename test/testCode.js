@@ -138,7 +138,7 @@
 // curl https://na2.salesforce.com/services/data/v20.0/sobjects/Account/0014000000HySURAA3 -H 'Authorization: Bearer 00D4000000098qV!AR0AQBV3k4qvF2BoOgHrssWEMZMB1NEgX.6UgyDtJ3S62WHWUcxdVMGLRNUeKjq_iCCYFKXAA1gQyVJw2TO9PBZQJJZTjw3v' -H "X-PrettyPrint:1" -H "Content-Type: application/json" --data-binary @patchaccount.json -X PATCH
 
 
-// var config = require('./config.json');
+var config = require('./config.json');
 // var sfdcAuthCodeUrl = config.sfdcAuthCodeUrl + config.sfdcAuthResponseType + '&' + config.sfdcConsumerKey + '&' + encodeURI(config.sfdcRedirectUrl);
 // console.log('sfdcAuthCodeURL:',sfdcAuthCodeUrl);
 //
