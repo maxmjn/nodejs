@@ -30,22 +30,25 @@ function sfdcSearch(req, res){
   console.log('In sfdcSearch: query=',searchString);
   searchString = 'gene'; //For debug
   // Get user
-  // Get access token
   var _id = req.user.sub;
   userService.getById(_id) //get user sfdcOauthInfo
       .then(function (user) {
+          // Try SFDC query
           if (user && user.sfdcOauthInfo) {
+
               var parameterizedSearch =  '/services/data/v37.0/parameterizedSearch/?sobject=Account&Account.fields=id,name&Account.limit=10&q=' + searchString;
+
               request.get({
                   url: user.sfdcOauthInfo.instance_url + parameterizedSearch,
                   headers: {
-                      'Content-Type': 'application/x-www-form-urlencoded'
+                      'Content-Type': 'application/x-www-form-urlencoded',
+                      'Authorization': 'Bearer ' + access_token
                   }
               }, function (error, response, body) {
                     console.log('SFDC search response:');
                     if (error) {
                         console.log(error);
-                        // also get new access_token if expired
+                        // SFDC retryAccessToken
                         sfdcService.retryAccessToken(_id, user.sfdcOauthInfo, user.sfdcOauthInfo.instance_url + parameterizedSearch)
                         .then(function (searchResponse) {
                             res.sendStatus(searchResponse);
