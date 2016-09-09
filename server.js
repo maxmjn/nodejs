@@ -10,6 +10,11 @@ const httpSport = 8000
 
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
+
+// security
+var helmet = require('helmet'); //adds HTTP headers to prevent clickjacking,XSS,...
+app.use(helmet()); //must be the first app.use() if not does not work
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(session({ secret: config.secret, resave: false, saveUninitialized: true }));
@@ -24,6 +29,7 @@ app.use('/app', require('./controllers/app.controller'));
 app.use('/api/users', require('./controllers/api/users.controller'));
 
 app.get('/sfdc/oauth2', require('./controllers/api/users.controller'));
+app.get('/api/users/sfdc', require('./controllers/api/users.controller'));
 
 // make '/app' default route
 app.get('/', appRedirect);

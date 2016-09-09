@@ -12,6 +12,7 @@ router.get('/current', getCurrentUser);
 router.put('/:_id', updateUser);
 router.delete('/:_id', deleteUser);
 router.get('/sfdc/oauth2',processSfdcOauth);
+router.get('/sfdc',searchSfdc);
 
 module.exports = router;
 
@@ -22,6 +23,11 @@ var jwt = require('jsonwebtoken'); //decode JWT
 var mongo = require('mongoskin');
 var db = mongo.db(config.connectionString, { native_parser: true });
 db.bind('users');
+
+function searchSfdc(req, res){
+  console.log('In searchSfdc');
+  res.status(200).send('In searchSfdc');
+}
 
 /**
   processSfdcOauth does the following
