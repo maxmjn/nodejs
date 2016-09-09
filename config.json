@@ -8,5 +8,7 @@
     "sfdcConsumerSecret" : "client_secret=4868649746186949863",
     "sfdcRedirectUrl" : "redirect_uri=https://console.summitsync.com:8000/sfdc/oauth2?",
     "sfdcAuthResponseType" : "response_type=code",
-    "sfdcAccessTokenGrantType" : "grant_type=authorization_code"
+    "sfdcAccessTokenGrantType" : "grant_type=authorization_code",
+    "sfdcRefreshTokenGrantType" : "grant_type=refresh_token",
+    "sfdcRefreshToken" : "&refresh_token="
 }

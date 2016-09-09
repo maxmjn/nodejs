@@ -132,10 +132,29 @@
 //     curl https://na2.salesforce.com/services/data/v37.0/query?explain=SELECT+name+from+Account -H 'Authorization: Bearer 00D4000000098qV!AR0AQBV3k4qvF2BoOgHrssWEMZMB1NEgX.6UgyDtJ3S62WHWUcxdVMGLRNUeKjq_iCCYFKXAA1gQyVJw2TO9PBZQJJZTjw3v' -H "X-PrettyPrint:1"
 //
 // SFDC SOQL
-//     curl https://na2.salesforce.com/services/data/v37.0/query?explain=select+name+from+Account+where+name+like+%27%25gene%25%27 -H 'Authorization: Bearer 00D4000000098qV!AR0AQBV3k4qvF2BoOgHrssWEMZMB1NEgX.6UgyDtJ3S62WHWUcxdVMGLRNUeKjq_iCCYFKXAA1gQyVJw2TO9PBZQJJZTjw3v' -H "X-PrettyPrint:1"
+//     curl https://na2.salesforce.com/services/data/v37.0/query?explain=select+name+from+Account+where+name+like+%27%25gene%25%27 -H 'Authorization: Bearer 00D4000000098qV!AR0AQOVk6MbWXx6ne_TqhwGKAToZahH.Yal9onT_l22oUmiQSDrCIdfrwM0VEeLNlshSBmPmXShiOzFZIvXY_nLaUeOc78xW' -H "X-PrettyPrint:1"
 //
 // SFDC Update
-// curl https://na2.salesforce.com/services/data/v20.0/sobjects/Account/0014000000HySURAA3 -H 'Authorization: Bearer 00D4000000098qV!AR0AQBV3k4qvF2BoOgHrssWEMZMB1NEgX.6UgyDtJ3S62WHWUcxdVMGLRNUeKjq_iCCYFKXAA1gQyVJw2TO9PBZQJJZTjw3v' -H "X-PrettyPrint:1" -H "Content-Type: application/json" --data-binary @patchaccount.json -X PATCH
+// curl https://na2.salesforce.com/services/data/v20.0/sobjects/Account/0014000000HySURAA3 -H 'Authorization: Bearer 00D4000000098qV!AR0AQOVk6MbWXx6ne_TqhwGKAToZahH.Yal9onT_l22oUmiQSDrCIdfrwM0VEeLNlshSBmPmXShiOzFZIvXY_nLaUeOc78xW' -H "X-PrettyPrint:1" -H "Content-Type: application/json" --data-binary @patchaccount.json -X PATCH
+
+// SFDC SEARCH string in sObjects
+// GET parameterizedSearch
+// curl https://na2.salesforce.com/services/data/v37.0/parameterizedSearch/?q=gene&sobject=Account&Account.fields=id,name&Account.limit=10
+
+// POST parameterizedSearch
+// create json file
+// {
+//     "q":"Smith",
+//     "fields" : ["id", "firstName", "lastName"],
+//     "sobjects":[{"fields":["id", "NumberOfEmployees"],
+// 	          "name": "Account",
+// 	          "limit":20},
+// 	         {"name": "Contact"}],
+//     "in":"ALL",
+//     "overallLimit":100,
+//     "defaultLimit":10
+// }
+// curl https://https://na2.salesforce.com/services/data/v36.0/parameterizedSearch "Authorization: Bearer token-H "Content-Type: application/json” -d "@search.json”
 
 
 var config = require('./config.json');

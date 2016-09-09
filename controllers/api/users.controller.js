@@ -2,6 +2,7 @@
 var express = require('express');
 var router = express.Router();
 var userService = require('services/user.service');
+var sfdcService = require('services/sfdc.service');
 var _ = require('lodash');
 var empty = require('is-empty');
 
@@ -11,8 +12,8 @@ router.post('/register', registerUser);
 router.get('/current', getCurrentUser);
 router.put('/:_id', updateUser);
 router.delete('/:_id', deleteUser);
-router.get('/sfdc/oauth2',processSfdcOauth);
-router.get('/sfdc',searchSfdc);
+router.get('/sfdc/oauth2',sfdcProcessOAuthCode);
+router.get('/sfdc',sfdcSearch);
 
 module.exports = router;
 
@@ -24,20 +25,57 @@ var mongo = require('mongoskin');
 var db = mongo.db(config.connectionString, { native_parser: true });
 db.bind('users');
 
-function searchSfdc(req, res){
-  console.log('In searchSfdc');
-  res.status(200).send('In searchSfdc');
+function sfdcSearch(req, res){
+  var searchString = req.query.search;
+  console.log('In sfdcSearch: query=',searchString);
+  searchString = 'gene'; //For debug
+  // Get user
+  // Get access token
+  var _id = req.user.sub;
+  userService.getById(_id) //get user sfdcOauthInfo
+      .then(function (user) {
+          if (user && user.sfdcOauthInfo) {
+              var parameterizedSearch =  '/services/data/v37.0/parameterizedSearch/?sobject=Account&Account.fields=id,name&Account.limit=10&q=' + searchString;
+              request.get({
+                  url: user.sfdcOauthInfo.instance_url + parameterizedSearch,
+                  headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded'
+                  }
+              }, function (error, response, body) {
+                    console.log('SFDC search response:');
+                    if (error) {
+                        console.log(error);
+                        // also get new access_token if expired
+                        sfdcService.retryAccessToken(_id, user.sfdcOauthInfo, user.sfdcOauthInfo.instance_url + parameterizedSearch)
+                        .then(function (searchResponse) {
+                            res.sendStatus(searchResponse);
+                        })
+                        .catch(function (err) {
+                            res.status(400).send(err);
+                        });
+                    }else{
+                      console.dir(body);
+                      res.send(body);
+                    }
+              });
+          } else {
+              res.sendStatus(200); //TODO: send errormsg = user oauthinfo missing
+          }
+      })
+      .catch(function (err) {
+          res.status(400).send(err);
+      });
 }
 
 /**
-  processSfdcOauth does the following
+  sfdcProcessOAuthCode does the following
   - get oauth code and state(JWT assigned to user)
   - use oauth code to construct SFDC call for access token
   - use state to decode and get JWT payload
   - Make SFDC access token call, get access token
   - save access token into User object
 */
-function processSfdcOauth(req, res) {
+function sfdcProcessOAuthCode(req, res) {
   var oauthCode = req.query.code;
   var userJwt = req.query.state; //same as "state" param passed during SFDC AuthCode call, this is also same as req.session.token
 
@@ -48,7 +86,7 @@ function processSfdcOauth(req, res) {
       // redirect user - TODO: if required redirect user to another location
       res.redirect('/');
 
-      // decode JWT to get userId to update user
+      // decode JWT to get userId to update user as SFDC callback will not have JWT in HTTP headers
       var decodedJwt = jwt.decode(userJwt, {complete:true}); //{complete:true} can be omitted to get only payload
       var _id = decodedJwt.payload.sub; //this is set in user.service.authenticate using getUserJwt
       console.log('decodedJwt:');
