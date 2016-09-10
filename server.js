@@ -27,9 +27,8 @@ app.use('/login', require('./controllers/login.controller'));
 app.use('/register', require('./controllers/register.controller'));
 app.use('/app', require('./controllers/app.controller'));
 app.use('/api/users', require('./controllers/api/users.controller'));
-
-app.get('/sfdc/oauth2', require('./controllers/api/users.controller'));
-app.get('/api/users/sfdc', require('./controllers/api/users.controller'));
+app.use('/api/sfdc', require('./controllers/api/sfdc.controller'));
+app.use('/sfdc', require('./controllers/api/sfdc.controller')); //call back from SFDC Connected App
 
 // make '/app' default route
 app.get('/', appRedirect);

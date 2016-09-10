@@ -1,3 +1,7 @@
+require('rootpath')(); //used by require() in controllers, services,...to find required file
+var config = require('../config.json');
+var sfdcService = require('../services/sfdc.service');
+
 // var querystring = require('querystring');
 // var https = require('https');
 //
@@ -157,7 +161,7 @@
 // curl https://https://na2.salesforce.com/services/data/v36.0/parameterizedSearch "Authorization: Bearer token-H "Content-Type: application/json” -d "@search.json”
 
 
-var config = require('./config.json');
+
 // var sfdcAuthCodeUrl = config.sfdcAuthCodeUrl + config.sfdcAuthResponseType + '&' + config.sfdcConsumerKey + '&' + encodeURI(config.sfdcRedirectUrl);
 // console.log('sfdcAuthCodeURL:',sfdcAuthCodeUrl);
 //
@@ -165,8 +169,20 @@ var config = require('./config.json');
 // console.log('sfdcAccessTokenParams:',sfdcAccessTokenParams);
 
 
-var jwt = require('jsonwebtoken');
-var decodedJwt = jwt.decode('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1N2NjMTdjOWI5YmM2OWI3Yzk4ZWJiMGUiLCJpYXQiOjE0NzMxMTYxNjB9._xCnzVlnuIh6RG6JiUUwG_Ti2UeXgIu2SWbkjx8hqkk', {complete:true});
-console.log('decodedJwt:');
-console.dir(decodedJwt);
-console.log('decodedJwt parts:', decodedJwt.payload.sub);
+// var jwt = require('jsonwebtoken');
+// var decodedJwt = jwt.decode('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1N2NjMTdjOWI5YmM2OWI3Yzk4ZWJiMGUiLCJpYXQiOjE0NzMxMTYxNjB9._xCnzVlnuIh6RG6JiUUwG_Ti2UeXgIu2SWbkjx8hqkk', {complete:true});
+// console.log('decodedJwt:');
+// console.dir(decodedJwt);
+// console.log('decodedJwt parts:', decodedJwt.payload.sub);
+
+
+// var refreshToken = '5Aep861MbVwdPc2TIimFAwkeJCs99vww9V67kwF.ZiWXdfFrUihc6mYW4_l_qihEmUi_X07XfevIZ4NJq8SDFfI';
+// var userId = '57d48feb4349bc818baa8c8b';
+// sfdcService.getAccessToken(userId, '', refreshToken)
+//     .then(function (newOauthInfo) {
+//
+//         console.log('getAccessToken response newOauthInfo:', newOauthInfo);
+//     })
+//     .catch(function (err) {
+//         console.log('After calling getAccessToken', err);
+//     });

@@ -1,5 +1,6 @@
 ﻿var config = require('config.json');
 var _ = require('lodash');
+var empty = require('is-empty');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var Q = require('q');
@@ -15,13 +16,44 @@ service.create = create;
 service.update = update;
 service.delete = _delete;
 service.getUserJwt = getUserJwt;
+service.getUserOauthInfo = getUserOauthInfo;
+service.updateUserOauthInfo = updateUserOauthInfo;
 
 module.exports = service;
 
+//Helper Methods
 function getUserJwt(_id){
   return jwt.sign({ sub:_id }, config.secret);
 }
 
+function getUserOauthInfo(user) {
+    var sfdcOauthInfo =_.get(user, 'sfdcOauthInfo', {});
+    // console.dir(sfdcOauthInfo);
+    console.log('empty(sfdcOauthInfo)', empty(sfdcOauthInfo));
+    return sfdcOauthInfo;
+}
+
+function updateUserOauthInfo(_id, oauthinfo){
+    var set = {
+        sfdcOauthInfo: oauthinfo
+    };
+    console.log('updateUserOauthInfo:');
+    db.users.update(
+        { _id: mongo.helper.toObjectID(_id) },
+        { $set: set },
+        function (err, doc) {
+            if (err) {
+                console.log(err.name + ': ' + err.message);
+                // TODO: should we let user know?
+            }
+            else {
+                console.log('updated user sfdcOauthInfo');
+                // TODO: should we let user know?
+            }
+        });
+}
+
+//Service methods
 function authenticate(username, password) {
     var deferred = Q.defer();
 
