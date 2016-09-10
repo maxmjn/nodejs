@@ -15,11 +15,16 @@ service.retryAccessToken = retryAccessToken;
 
 module.exports = service;
 
-function retryAccessToken(userId,sfdcOauthInfo, parameterizedSearch){
+function retryAccessToken(userId,sfdcOauthInfo, sfdcSearchUrl){
     var deferred = Q.defer();
+
+    console.log('retryAccessToken:');
 
     // Construct SFDC access token payload
     var data = config.sfdcRefreshTokenGrantType + '&' + config.sfdcConsumerKey + '&' + config.sfdcConsumerSecret + '&' + config.sfdcRefreshToken + sfdcOauthInfo.refresh_token;
+
+    console.log(sfdcAccessTokenUrl, data);
+
     // Make SFDC call to get access token
     request.post({
         url: sfdcAccessTokenUrl,
@@ -28,11 +33,11 @@ function retryAccessToken(userId,sfdcOauthInfo, parameterizedSearch){
         },
         body: data
     }, function (error, response, body) {
+          console.log('SFDC access token response:');
           if (error) {
               console.log(error);
               deferred.resolve({"errormsg":"Error getting access_token using refresh_token"});
           }else{
-            console.log('SFDC access token response:');
             console.dir(body);
             //update user with response
             var set = {
@@ -51,20 +56,19 @@ function retryAccessToken(userId,sfdcOauthInfo, parameterizedSearch){
                       // TODO: should we let user know?
                     }
                 });
-            retryQuery(body.access_token, searchString);
+            retryQuery(body.access_token, sfdcSearchUrl);
           }
     });
 
-    function retryQuery(access_token, searchString){
-        var parameterizedSearch = '/services/data/v37.0/parameterizedSearch/?q=gene&sobject=Account&Account.fields=id,name&Account.limit=10';
+    function retryQuery(access_token, sfdcSearchUrl){
+        console.log('SFDC retryQuery response:');
         request.get({
-            url: parameterizedSearch,
+            url: sfdcSearchUrl,
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Authorization': 'Bearer ' + access_token
             }
         }, function (error, response, body) {
-              console.log('SFDC retryQuery response:');
               if (error) {
                   console.log(error);
                   deferred.reject({"errormsg":error});

@@ -27,19 +27,37 @@ db.bind('users');
 
 function sfdcSearch(req, res){
   var searchString = req.query.search;
-  console.log('In sfdcSearch: query=',searchString);
+  console.log('In sfdcSearch:');
+  console.log('query=',searchString);
   searchString = 'gene'; //For debug
+
   // Get user
   var _id = req.user.sub;
+  console.log('_id:', _id);
+
   userService.getById(_id) //get user sfdcOauthInfo
       .then(function (user) {
           // Try SFDC query
-          if (user && user.sfdcOauthInfo) {
+          var sfdcOauthInfo =_.get(user, 'sfdcOauthInfo', {});
+          var sfdcUrl = _.get(sfdcOauthInfo,'instance_url','');
+          var access_token = _.get(sfdcOauthInfo, 'access_token','');
 
-              var parameterizedSearch =  '/services/data/v37.0/parameterizedSearch/?sobject=Account&Account.fields=id,name&Account.limit=10&q=' + searchString;
+          console.log('empty(sfdcOauthInfo)', empty(sfdcOauthInfo));
+          // console.dir(sfdcOauthInfo);
+          console.log('empty(sfdcUrl)',empty(sfdcUrl));
+          console.log('empty(access_token)',empty(access_token));
+
+          if(!empty(sfdcUrl) && !empty(access_token)){
+
+              var parameterizedSearch =  '/services/data/v37.0/parameterizedSearch/?sobject=Account&Account.fields=id,name&Account.limit=10&q=';
+
+              var sfdcSearchUrl = sfdcUrl + parameterizedSearch + searchString;
+
+              console.log('sfdcSearchUrl',sfdcSearchUrl);
+              console.log('access_token', access_token);
 
               request.get({
-                  url: user.sfdcOauthInfo.instance_url + parameterizedSearch,
+                  url: sfdcSearchUrl,
                   headers: {
                       'Content-Type': 'application/x-www-form-urlencoded',
                       'Authorization': 'Bearer ' + access_token
@@ -49,7 +67,7 @@ function sfdcSearch(req, res){
                     if (error) {
                         console.log(error);
                         // SFDC retryAccessToken
-                        sfdcService.retryAccessToken(_id, user.sfdcOauthInfo, user.sfdcOauthInfo.instance_url + parameterizedSearch)
+                        sfdcService.retryAccessToken(_id, user.sfdcOauthInfo, sfdcSearchUrl)
                         .then(function (searchResponse) {
                             res.sendStatus(searchResponse);
                         })
@@ -57,8 +75,9 @@ function sfdcSearch(req, res){
                             res.status(400).send(err);
                         });
                     }else{
-                      console.dir(body);
-                      res.send(body);
+                      console.log(body);
+                      var jsonResponse = JSON.parse(body);
+                      res.send(jsonResponse);
                     }
               });
           } else {
@@ -66,6 +85,7 @@ function sfdcSearch(req, res){
           }
       })
       .catch(function (err) {
+        console.log('catch');
           res.status(400).send(err);
       });
 }
@@ -82,6 +102,7 @@ function sfdcProcessOAuthCode(req, res) {
   var oauthCode = req.query.code;
   var userJwt = req.query.state; //same as "state" param passed during SFDC AuthCode call, this is also same as req.session.token
 
+  console.log('sfdcProcessOAuthCode');
   console.log('SFDC returned oauthCode:', oauthCode);
   console.log('SFDC returned state:', userJwt);
   if(oauthCode && userJwt){
@@ -94,7 +115,7 @@ function sfdcProcessOAuthCode(req, res) {
       var _id = decodedJwt.payload.sub; //this is set in user.service.authenticate using getUserJwt
       console.log('decodedJwt:');
       console.dir(decodedJwt);
-      console.log('decodedJwt parts:', decodedJwt.payload.sub);
+      console.log('decodedJwt payload.sub:', decodedJwt.payload.sub);
 
       // Construct SFDC access token payload
       var data = 'code=' + oauthCode + '&' + config.sfdcAccessTokenGrantType + '&' + config.sfdcConsumerKey + '&' + config.sfdcConsumerSecret + '&' + encodeURI(config.sfdcRedirectUrl);
@@ -109,11 +130,13 @@ function sfdcProcessOAuthCode(req, res) {
             if (error) {
                 console.log(error);
             }else{
-              console.log('SFDC access token response:');
-              console.dir(body);
+              console.log('SFDC access token response received:');
+              // console.log(body);
+              var oauthinfo = JSON.parse(body);
+              console.log('oauthinfo.access_token', oauthinfo.access_token);
               //update user with response
               var set = {
-                sfdcOauthInfo: body
+                sfdcOauthInfo: oauthinfo
               };
               db.users.update(
                   { _id: mongo.helper.toObjectID(_id) },
@@ -160,17 +183,18 @@ function registerUser(req, res) {
 }
 
 function getCurrentUser(req, res) {
+    console.log('getCurrentUser:');
     userService.getById(req.user.sub) //sub is userID encoded into JWT in user.service.authenticate and decoded by express-jwt in server.js
         .then(function (user) {
             if (user) {
                 var userJwt = req.session.token;
 
-                console.log('user:');
-                console.dir(user);
+                console.log('user.username', user.username);
+                // console.dir(user);
                 console.log('user jwt:', userJwt);
 
                 var sfdcOauth =_.get(user, 'sfdcOauthInfo', {});
-                console.log('sfdcOauth:', sfdcOauth);
+                console.log('empty(sfdcOauth)', empty(sfdcOauth));
 
                 if(empty(sfdcOauth)){ //empty sfdc oauth info
                   user.hasSfdcAccessToken = false; //used by angular to make SFDC oauth code request
