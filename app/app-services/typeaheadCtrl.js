@@ -16,13 +16,22 @@
   // setup controller and pass data source
   myApp.controller("TypeaheadCtrl", function($scope, States, UserSfdcService) {
 
+    var vm = this;
+
   	$scope.selected = undefined;
 
   	$scope.states = States;
 
     $scope.submit = function () {
         $scope.myTxt = "You selected!" + $scope.selected;
-        UserSfdcService.GetByUsername($scope.selected);
+        service();
+    }
+
+    function service() {
+        // get search results
+        UserSfdcService.GetByUsername($scope.selected).then(function (results) {
+            $scope.sfdcSearchResult = results.searchRecords;
+        });
     }
 
   });

@@ -11,5 +11,7 @@
       <button class="btn btn-success" type="submit">Submit</button>
     </form>
     <p>{{myTxt}}</p>
+		<pre>{{sfdcSearchResult[0]}}</pre>
+		<pre ng-repeat="rec in sfdcSearchResult">{{rec.Name}} | {{rec.Id}}</pre>
 	</div>
 <!-- </div> -->
