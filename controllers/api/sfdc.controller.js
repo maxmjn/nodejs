@@ -35,7 +35,7 @@ function test(req, res) {
 //Controllers
 function search(req, res){
 
-    console.log('In sfdcSearch:');
+    console.log('In sfdc controller search:');
 
     var searchQuery = req.query.search;
     console.log('query=',searchQuery);
@@ -72,13 +72,13 @@ function search(req, res){
 }
 
 /**
-  processOAuthCode does the following
-  - get oauth code and state(JWT assigned to user)
-  - use oauth code to construct SFDC call for access token
-  - use state to decode and get JWT payload
-  - Make SFDC access token call, get access token
-  - save access token into User object
-*/
+ processOAuthCode does the following
+ - get oauth code and state(JWT assigned to user)
+ - use oauth code to construct SFDC call for access token
+ - use state to decode and get JWT payload
+ - Make SFDC access token call, get access token
+ - save access token into User object
+ */
 function processOAuthCode(req, res) {
 
     console.log('processOAuthCode');

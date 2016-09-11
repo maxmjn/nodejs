@@ -15,7 +15,7 @@ const SFDC_SVC = 'SFDC_SVC';
 const ACCESS_TOKEN_URL = config.sfdcAccessTokenUrl;
 const REFRESHTOKEN_PAYLOAD = config.sfdcRefreshTokenGrantType + '&' + config.sfdcConsumerKey + '&' + config.sfdcConsumerSecret + config.sfdcRefreshToken;
 var ACCESSTOKEN_PAYLOAD = config.sfdcAccessTokenGrantType + '&' + config.sfdcConsumerKey + '&' + config.sfdcConsumerSecret
-                        + '&' + encodeURI(config.sfdcRedirectUrl);
+    + '&' + encodeURI(config.sfdcRedirectUrl);
 
 //Search params
 //TODO: move to config
@@ -30,15 +30,15 @@ module.exports = service;
 
 // Helper methods
 function pluckInstanceUrl(oauthInfo) {
-  var url = _.get(oauthInfo,'instance_url','SFDC_INSTANCE_URL');
-  console.log('instance_url', url);
-  return url;
+    var url = _.get(oauthInfo,'instance_url','SFDC_INSTANCE_URL');
+    console.log('instance_url', url);
+    return url;
 }
 
 function pluckAccessToken(oauthInfo) {
-  var access_token = _.get(oauthInfo, 'access_token','SFDC_ACCESS_TOKEN');
-  console.log('access_token', access_token);
-  return access_token;
+    var access_token = _.get(oauthInfo, 'access_token','SFDC_ACCESS_TOKEN');
+    console.log('access_token', access_token);
+    return access_token;
 }
 
 function pluckRefreshToken(oauthInfo) {
@@ -62,7 +62,7 @@ function query(userId, oauthInfo, query) {
 
     console.log('query:', 'userId', userId, 'query', query, 'oauthInfo.access_token', oauthInfo.access_token);
 
-    var thisMethod = this;
+    var thisMethod = service.query;
     var url = pluckInstanceUrl(oauthInfo) + PARAMETERIZED_ACCOUNT_SEARCH + query;
     var accessToken = pluckAccessToken(oauthInfo);
     var refreshToken = pluckRefreshToken(oauthInfo);
@@ -77,28 +77,28 @@ function query(userId, oauthInfo, query) {
         }
     }, function (error, response, body) {
 
-          console.log('SFDC search response:', response.statusCode);
-          var jsonResponse = JSON.parse(body);
+        console.log('SFDC search response:', response.statusCode);
+        var jsonResponse = JSON.parse(body);
 
-          if (error) {
-              console.log(error);
-              deferred.resolve(errorService.makeErrorMsg(SFDC_SVC, error));
-          } else if (response.statusCode == 200) {
-              deferred.resolve(jsonResponse);
-          } else if(response.statusCode == 401){ // bad access token
-              getAccessToken(userId, '', refreshToken)
-                  .then(function (newOauthInfo) {
+        if (error) {
+            console.log(error);
+            deferred.resolve(errorService.makeErrorMsg(SFDC_SVC, error));
+        } else if (response.statusCode == 200) {
+            deferred.resolve(jsonResponse);
+        } else if(response.statusCode == 401){ // bad access token
+            getAccessToken(userId, '', refreshToken)
+                .then(function (newOauthInfo) {
 
-                      console.log('getAccessToken response newOauthInfo:', newOauthInfo);
-                      thisMethod(userId, newOauthInfo, query);
-                  })
-                  .catch(function (err) {
-                      console.log('After calling getAccessToken', err);
-                      deferred.resolve(errorService.makeErrorMsg(SFDC_SVC, err));
-                  });
-          } else {
-              deferred.resolve(errorService.makeErrorMsg(SFDC_SVC, jsonResponse));
-          }
+                    console.log('getAccessToken response newOauthInfo:', newOauthInfo);
+                    thisMethod(userId, newOauthInfo, query);
+                })
+                .catch(function (err) {
+                    console.log('After calling getAccessToken', err);
+                    deferred.resolve(errorService.makeErrorMsg(SFDC_SVC, err));
+                });
+        } else {
+            deferred.resolve(errorService.makeErrorMsg(SFDC_SVC, jsonResponse));
+        }
     });
 
     return deferred.promise;
