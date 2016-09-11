@@ -1,3 +1,7 @@
+require('rootpath')(); //used by require() in controllers, services,...to find required file
+var config = require('../config.json');
+var sfdcService = require('../services/sfdc.service');
+
 // var querystring = require('querystring');
 // var https = require('https');
 //
@@ -132,13 +136,32 @@
 //     curl https://na2.salesforce.com/services/data/v37.0/query?explain=SELECT+name+from+Account -H 'Authorization: Bearer 00D4000000098qV!AR0AQBV3k4qvF2BoOgHrssWEMZMB1NEgX.6UgyDtJ3S62WHWUcxdVMGLRNUeKjq_iCCYFKXAA1gQyVJw2TO9PBZQJJZTjw3v' -H "X-PrettyPrint:1"
 //
 // SFDC SOQL
-//     curl https://na2.salesforce.com/services/data/v37.0/query?explain=select+name+from+Account+where+name+like+%27%25gene%25%27 -H 'Authorization: Bearer 00D4000000098qV!AR0AQBV3k4qvF2BoOgHrssWEMZMB1NEgX.6UgyDtJ3S62WHWUcxdVMGLRNUeKjq_iCCYFKXAA1gQyVJw2TO9PBZQJJZTjw3v' -H "X-PrettyPrint:1"
+//     curl https://na2.salesforce.com/services/data/v37.0/query?explain=select+name+from+Account+where+name+like+%27%25gene%25%27 -H 'Authorization: Bearer 00D4000000098qV!AR0AQOVk6MbWXx6ne_TqhwGKAToZahH.Yal9onT_l22oUmiQSDrCIdfrwM0VEeLNlshSBmPmXShiOzFZIvXY_nLaUeOc78xW' -H "X-PrettyPrint:1"
 //
 // SFDC Update
-// curl https://na2.salesforce.com/services/data/v20.0/sobjects/Account/0014000000HySURAA3 -H 'Authorization: Bearer 00D4000000098qV!AR0AQBV3k4qvF2BoOgHrssWEMZMB1NEgX.6UgyDtJ3S62WHWUcxdVMGLRNUeKjq_iCCYFKXAA1gQyVJw2TO9PBZQJJZTjw3v' -H "X-PrettyPrint:1" -H "Content-Type: application/json" --data-binary @patchaccount.json -X PATCH
+// curl https://na2.salesforce.com/services/data/v20.0/sobjects/Account/0014000000HySURAA3 -H 'Authorization: Bearer 00D4000000098qV!AR0AQOVk6MbWXx6ne_TqhwGKAToZahH.Yal9onT_l22oUmiQSDrCIdfrwM0VEeLNlshSBmPmXShiOzFZIvXY_nLaUeOc78xW' -H "X-PrettyPrint:1" -H "Content-Type: application/json" --data-binary @patchaccount.json -X PATCH
+
+// SFDC SEARCH string in sObjects
+// GET parameterizedSearch
+// curl https://na2.salesforce.com/services/data/v37.0/parameterizedSearch/?q=gene&sobject=Account&Account.fields=id,name&Account.limit=10
+
+// POST parameterizedSearch
+// create json file
+// {
+//     "q":"Smith",
+//     "fields" : ["id", "firstName", "lastName"],
+//     "sobjects":[{"fields":["id", "NumberOfEmployees"],
+// 	          "name": "Account",
+// 	          "limit":20},
+// 	         {"name": "Contact"}],
+//     "in":"ALL",
+//     "overallLimit":100,
+//     "defaultLimit":10
+// }
+// curl https://https://na2.salesforce.com/services/data/v36.0/parameterizedSearch "Authorization: Bearer token-H "Content-Type: application/json” -d "@search.json”
 
 
-var config = require('./config.json');
+
 // var sfdcAuthCodeUrl = config.sfdcAuthCodeUrl + config.sfdcAuthResponseType + '&' + config.sfdcConsumerKey + '&' + encodeURI(config.sfdcRedirectUrl);
 // console.log('sfdcAuthCodeURL:',sfdcAuthCodeUrl);
 //
@@ -146,8 +169,23 @@ var config = require('./config.json');
 // console.log('sfdcAccessTokenParams:',sfdcAccessTokenParams);
 
 
-var jwt = require('jsonwebtoken');
-var decodedJwt = jwt.decode('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1N2NjMTdjOWI5YmM2OWI3Yzk4ZWJiMGUiLCJpYXQiOjE0NzMxMTYxNjB9._xCnzVlnuIh6RG6JiUUwG_Ti2UeXgIu2SWbkjx8hqkk', {complete:true});
-console.log('decodedJwt:');
-console.dir(decodedJwt);
-console.log('decodedJwt parts:', decodedJwt.payload.sub);
+// var jwt = require('jsonwebtoken');
+// var decodedJwt = jwt.decode('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1N2NjMTdjOWI5YmM2OWI3Yzk4ZWJiMGUiLCJpYXQiOjE0NzMxMTYxNjB9._xCnzVlnuIh6RG6JiUUwG_Ti2UeXgIu2SWbkjx8hqkk', {complete:true});
+// console.log('decodedJwt:');
+// console.dir(decodedJwt);
+// console.log('decodedJwt parts:', decodedJwt.payload.sub);
+
+
+var refreshToken = '5Aep861MbVwdPc2TIimFAwkeJCs99vww9V67kwF.ZiWXdfFrUihc6mYW4_l_qihEmUi_X07XfevIZ4NJq8SDFfI';
+var userId = '57d48feb4349bc818baa8c8b';
+function check() {
+    console.log("Hey! Check");
+}
+sfdcService.getAccessToken(userId, '', refreshToken)
+    .then(function (newOauthInfo) {
+        check();
+        console.log('getAccessToken response newOauthInfo:', newOauthInfo);
+    })
+    .catch(function (err) {
+        console.log('After calling getAccessToken', err);
+    });

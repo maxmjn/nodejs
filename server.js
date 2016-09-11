@@ -5,8 +5,8 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 var expressJwt = require('express-jwt');
 var config = require('config.json');
-const httpPort = 3000
-const httpSport = 8000
+const httpPort = 3000;
+const httpSport = 8000;
 
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
@@ -27,8 +27,8 @@ app.use('/login', require('./controllers/login.controller'));
 app.use('/register', require('./controllers/register.controller'));
 app.use('/app', require('./controllers/app.controller'));
 app.use('/api/users', require('./controllers/api/users.controller'));
-
-app.get('/sfdc/oauth2', require('./controllers/api/users.controller'));
+app.use('/api/sfdc', require('./controllers/api/sfdc.controller'));
+app.use('/sfdc', require('./controllers/api/sfdc.controller')); //call back from SFDC Connected App
 
 // make '/app' default route
 app.get('/', appRedirect);

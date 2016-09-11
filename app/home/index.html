@@ -1,1 +1,20 @@
 ﻿<h1>Hi {{vm.user.firstName}}!!</h1>
+
+<!-- <div ng-app="angularTypeahead"> -->
+	<div class="container-fluid" ng-controller="TypeaheadCtrl">
+		<!-- <h2><img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/15309/angular-logo.svg" alt="Angular.js Logo"> Angular.js Typeahead</h2> -->
+    <form ng-submit="submit()">
+  		<div class="form-group">
+  		  <label for="states">Search for US States</label>
+  			<input name="states" id="states" type="text" placeholder="enter a state" ng-model="selected"
+				   typeahead="state.sym for state in states($viewValue) | filter:$viewValue | limitTo:8" class="form-control">
+				   <!--typeahead="state.sym for state in states | filter:$viewValue | limitTo:8" class="form-control"> if states is a static array-->
+  		</div>
+      <button class="btn btn-success" type="submit">Submit</button>
+    </form>
+		<p>{{myTxt}}</p>
+		<pre>Available data:{{myTxt2}}</pre>
+		<pre>{{sfdcSearchResult[0]}}</pre>
+		<pre ng-repeat="rec in sfdcSearchResult">{{rec.Name}} | {{rec.Id}}</pre>
+	</div>
+<!-- </div> -->

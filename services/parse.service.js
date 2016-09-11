@@ -1,16 +1,11 @@
 ﻿var config = require('config.json');
 var _ = require('lodash');
-var empty = require('is-empty');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var Q = require('q');
 var mongo = require('mongoskin');
 var db = mongo.db(config.connectionString, { native_parser: true });
 db.bind('users');
-
-var errorService = require('services/error.service');
-
-const USER_SVC = 'USER_SVC';
 
 var service = {};
 
@@ -20,48 +15,13 @@ service.create = create;
 service.update = update;
 service.delete = _delete;
 service.getUserJwt = getUserJwt;
-service.getUserOauthInfo = getUserOauthInfo;
-service.updateUserOauthInfo = updateUserOauthInfo;
 
 module.exports = service;
 
-//Helper Methods
 function getUserJwt(_id){
   return jwt.sign({ sub:_id }, config.secret);
 }
 
-function getUserOauthInfo(user) {
-    var sfdcOauthInfo =_.get(user, 'sfdcOauthInfo', {});
-    // console.dir(sfdcOauthInfo);
-    console.log('empty(sfdcOauthInfo)', empty(sfdcOauthInfo));
-    return sfdcOauthInfo;
-}
-
-function updateUserOauthInfo(_id, oauthinfo){
-    var deferred = Q.defer();
-
-    var set = {
-        sfdcOauthInfo: oauthinfo
-    };
-    console.log('updateUserOauthInfo:');
-    db.users.update(
-        { _id: mongo.helper.toObjectID(_id) },
-        { $set: set },
-        function (err, doc) {
-            if (err) {
-                console.log(err.name + ': ' + err.message);
-                deferred.resolve(errorService.makeErrorMsg(USER_SVC, err.name + ':' + err.message));
-            }
-            else {
-                console.log('updated user sfdcOauthInfo');
-                deferred.resolve(doc);
-            }
-        });
-
-    return deferred.promise;
-}
-
-//Service methods
 function authenticate(username, password) {
     var deferred = Q.defer();
 
