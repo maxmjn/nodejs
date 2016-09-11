@@ -1,39 +1,45 @@
-(function() {
+(function () {
 
-  // setup app and pass ui.bootstrap as dep
-  var myApp = angular.module("app");
+    // setup app and pass ui.bootstrap as dep
+    var myApp = angular.module('app');
 
-  // define factory for data source
-  myApp.factory("States", function(){
-    var states = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Dakota", "North Carolina", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"];
-    var s2 = [{"name":"Virginia", "sym":"VA"},
-             {"name":"Washington", "sym":"WA"}
-             ]
-    return s2;
+    // define factory for data source
+    myApp.factory('States', function (UserSfdcService) {
 
-  });
+        var values =[];
+        var getValues = function () {
+          return values;
+        };
+        UserSfdcService.test('Account', '')
+            .then(function (results) {
+                values = results;
+            });
+        return {
+            getValues: getValues
+        };
 
-  // setup controller and pass data source
-  myApp.controller("TypeaheadCtrl", function($scope, States, UserSfdcService) {
+    });
 
-    var vm = this;
+    // setup controller and pass data source
+    myApp.controller('TypeaheadCtrl', function ($scope, States, UserSfdcService) {
 
-  	$scope.selected = undefined;
+        $scope.selected = undefined;
 
-  	$scope.states = States;
+        $scope.states = States.getValues;
 
-    $scope.submit = function () {
-        $scope.myTxt = "You selected!" + $scope.selected;
-        service();
-    }
+        $scope.submit = function () {
+            $scope.myTxt = "You selected!" + $scope.selected;
+            $scope.myTxt2 = States.getValues();
+            service();
+        }
 
-    function service() {
-        // get search results
-        UserSfdcService.GetByUsername($scope.selected).then(function (results) {
-            $scope.sfdcSearchResult = results.searchRecords;
-        });
-    }
+        function service() {
+            // get search results
+            UserSfdcService.GetByUsername($scope.selected).then(function (results) {
+                $scope.sfdcSearchResult = results.searchRecords;
+            });
+        }
 
-  });
+    });
 
 })();

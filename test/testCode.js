@@ -176,13 +176,16 @@ var sfdcService = require('../services/sfdc.service');
 // console.log('decodedJwt parts:', decodedJwt.payload.sub);
 
 
-// var refreshToken = '5Aep861MbVwdPc2TIimFAwkeJCs99vww9V67kwF.ZiWXdfFrUihc6mYW4_l_qihEmUi_X07XfevIZ4NJq8SDFfI';
-// var userId = '57d48feb4349bc818baa8c8b';
-// sfdcService.getAccessToken(userId, '', refreshToken)
-//     .then(function (newOauthInfo) {
-//
-//         console.log('getAccessToken response newOauthInfo:', newOauthInfo);
-//     })
-//     .catch(function (err) {
-//         console.log('After calling getAccessToken', err);
-//     });
+var refreshToken = '5Aep861MbVwdPc2TIimFAwkeJCs99vww9V67kwF.ZiWXdfFrUihc6mYW4_l_qihEmUi_X07XfevIZ4NJq8SDFfI';
+var userId = '57d48feb4349bc818baa8c8b';
+function check() {
+    console.log("Hey! Check");
+}
+sfdcService.getAccessToken(userId, '', refreshToken)
+    .then(function (newOauthInfo) {
+        check();
+        console.log('getAccessToken response newOauthInfo:', newOauthInfo);
+    })
+    .catch(function (err) {
+        console.log('After calling getAccessToken', err);
+    });

@@ -8,6 +8,10 @@ var mongo = require('mongoskin');
 var db = mongo.db(config.connectionString, { native_parser: true });
 db.bind('users');
 
+var errorService = require('services/error.service');
+
+const USER_SVC = 'USER_SVC';
+
 var service = {};
 
 service.authenticate = authenticate;
@@ -34,6 +38,8 @@ function getUserOauthInfo(user) {
 }
 
 function updateUserOauthInfo(_id, oauthinfo){
+    var deferred = Q.defer();
+
     var set = {
         sfdcOauthInfo: oauthinfo
     };
@@ -44,13 +50,15 @@ function updateUserOauthInfo(_id, oauthinfo){
         function (err, doc) {
             if (err) {
                 console.log(err.name + ': ' + err.message);
-                // TODO: should we let user know?
+                deferred.resolve(errorService.makeErrorMsg(USER_SVC, err.name + ':' + err.message));
             }
             else {
                 console.log('updated user sfdcOauthInfo');
-                // TODO: should we let user know?
+                deferred.resolve(doc);
             }
         });
+
+    return deferred.promise;
 }
 
 //Service methods

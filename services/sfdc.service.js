@@ -8,15 +8,18 @@ var db = mongo.db(config.connectionString, { native_parser: true });
 db.bind('users');
 
 var userService = require('services/user.service');
+var errorService = require('services/error.service');
 
 //CONSTANTS
+const SFDC_SVC = 'SFDC_SVC';
 const ACCESS_TOKEN_URL = config.sfdcAccessTokenUrl;
 const REFRESHTOKEN_PAYLOAD = config.sfdcRefreshTokenGrantType + '&' + config.sfdcConsumerKey + '&' + config.sfdcConsumerSecret + config.sfdcRefreshToken;
 var ACCESSTOKEN_PAYLOAD = config.sfdcAccessTokenGrantType + '&' + config.sfdcConsumerKey + '&' + config.sfdcConsumerSecret
                         + '&' + encodeURI(config.sfdcRedirectUrl);
 
 //Search params
-const parameterizedAccountSearch = '/services/data/v37.0/parameterizedSearch/?sobject=Account&Account.fields=id,name&Account.limit=10&q='
+//TODO: move to config
+const PARAMETERIZED_ACCOUNT_SEARCH = '/services/data/v37.0/parameterizedSearch/?sobject=Account&Account.fields=id,name&Account.limit=10&q=';
 
 var service = {};
 
@@ -44,13 +47,6 @@ function pluckRefreshToken(oauthInfo) {
     return refresh_token;
 }
 
-function makeErrorMsg(error) {
-  return {
-        "errorCode" : "SFDC_ERROR",
-        "errormsg" : error
-    };
-}
-
 // Service methods
 /**
  * userId is required to update User if refresh token is used to get new access token
@@ -67,7 +63,7 @@ function query(userId, oauthInfo, query) {
     console.log('query:', 'userId', userId, 'query', query, 'oauthInfo.access_token', oauthInfo.access_token);
 
     var thisMethod = this;
-    var url = pluckInstanceUrl(oauthInfo) + parameterizedAccountSearch + query;
+    var url = pluckInstanceUrl(oauthInfo) + PARAMETERIZED_ACCOUNT_SEARCH + query;
     var accessToken = pluckAccessToken(oauthInfo);
     var refreshToken = pluckRefreshToken(oauthInfo);
     console.log('url', url, 'access_token', accessToken);
@@ -86,7 +82,7 @@ function query(userId, oauthInfo, query) {
 
           if (error) {
               console.log(error);
-              deferred.resolve(makeErrorMsg(error));
+              deferred.resolve(errorService.makeErrorMsg(SFDC_SVC, error));
           } else if (response.statusCode == 200) {
               deferred.resolve(jsonResponse);
           } else if(response.statusCode == 401){ // bad access token
@@ -98,10 +94,10 @@ function query(userId, oauthInfo, query) {
                   })
                   .catch(function (err) {
                       console.log('After calling getAccessToken', err);
-                      deferred.resolve(makeErrorMsg(err));
+                      deferred.resolve(errorService.makeErrorMsg(SFDC_SVC, err));
                   });
           } else {
-              deferred.resolve(makeErrorMsg(jsonResponse));
+              deferred.resolve(errorService.makeErrorMsg(SFDC_SVC, jsonResponse));
           }
     });
 
@@ -151,6 +147,10 @@ function getAccessToken(userId, oauthCode, refresh_token){
             // console.log(body);
             var oauthinfo = JSON.parse(body);
 
+            //if response is missing refresh token, preserve existing refresh_token
+            if(empty(oauthinfo.refresh_token)){
+                oauthinfo.refresh_token = refresh_token;
+            }
             //update user with response
             userService.updateUserOauthInfo(userId, oauthinfo);
 
