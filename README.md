@@ -2,7 +2,7 @@
 
 ### Usage
 
-1. Update your local hosts file (Mac/Linux => /etc/hosts) with YOUR_SFDC_CALL_BACK URL
+1. Update your local hosts file (Mac/Linux => /etc/hosts) with your SFDC Connected App Callback URL
 ```sh
  127.0.0.1       console.summitsync.com
 ```
@@ -45,8 +45,8 @@ https://console.summitsync.com:8000
 ```
 
 ### Architecture Details
-Folders
-Front-end/UI:
+#### Folders
+#### Front-end/UI:
 - app: this and its sub-folders contains all UI/front-end
 - app/account: has controller and view for Account functionality
 - app/app-content: styles, favicon
@@ -55,15 +55,14 @@ Front-end/UI:
 - app/app.js: UI main file
 - app/index.html: UI main view
 
-Server/back-end:
+#### Server/back-end:
 - controllers: server side controllers
 - https_cert: certs used to enable HTTPs
 - public: will hold files that do not need authentication
 - services: common files used by all controllers
 - views: controllers serve these to UI 
 
-Flow of request
-
+#### Flow of request:
 Both UI and server side use similar flow - request --> Controller --> Service
 
 web request ---> Controller ---> Services ---> data source 
