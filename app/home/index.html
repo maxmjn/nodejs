@@ -7,7 +7,7 @@
   		<div class="form-group">
   		  <label for="states">Search for US States</label>
   			<input name="states" id="states" type="text" placeholder="enter a state" ng-model="selected"
-				   typeahead="state.sym for state in states($viewValue) | filter:$viewValue | limitTo:8" class="form-control">
+				   typeahead="state.sym for state in states() | filter:$viewValue | limitTo:8" class="form-control">
 				   <!--typeahead="state.sym for state in states | filter:$viewValue | limitTo:8" class="form-control"> if states is a static array-->
   		</div>
       <button class="btn btn-success" type="submit">Submit</button>
